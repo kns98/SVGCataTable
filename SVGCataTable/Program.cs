@@ -40,6 +40,8 @@ namespace SvgProcessingApp
             int thumbnailSize = (int)(thumbnailSizeInches * inchToPixel);
 
             string catalogDirectory = Path.Combine(directoryPath, "catalogue");
+            Directory.GetFiles(catalogDirectory).OrderBy(f => f).ToList().ForEach(Console.WriteLine);
+
             Directory.CreateDirectory(catalogDirectory);
 
             List<string> htmlRows = new List<string>();
@@ -50,7 +52,10 @@ namespace SvgProcessingApp
                 var svg = new SKSvg();
                 svg.Load(svgFilePath);
 
-                if (svg.Picture != null)
+                string fileName = $"thumb_{fileCounter}.jpg";
+                string outputFilePath = Path.Combine(catalogDirectory, fileName);
+
+                if (!File.Exists(outputFilePath) && svg.Picture != null)
                 {
                     float originalWidth = svg.Picture.CullRect.Width;
                     float originalHeight = svg.Picture.CullRect.Height;
@@ -58,8 +63,7 @@ namespace SvgProcessingApp
 
                     using (var bitmap = SKPictureExtensions.ToBitmap(svg.Picture, SKColors.Transparent, scale, scale, SKColorType.Rgba8888, SKAlphaType.Unpremul, SKColorSpace.CreateSrgb()))
                     {
-                        string fileName = $"thumb_{fileCounter}.jpg";
-                        string outputFilePath = Path.Combine(catalogDirectory, fileName);
+
 
                         using (var image = SKImage.FromBitmap(bitmap))
                         using (var data = image.Encode(SKEncodedImageFormat.Jpeg, 100))
